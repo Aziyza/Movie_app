@@ -9,6 +9,11 @@ import UIKit
 
 class HomeVC: UIViewController {
     
+    let urls = URLs()
+    var data:[MovieModel] = []
+    let menuTitle = ["Popular", "Top-rated", "Upcoming"]
+    let searchController = UISearchController()
+    
     @IBOutlet weak var menuCllectionView: UICollectionView! {
         didSet {
             menuCllectionView.delegate = self
@@ -29,13 +34,14 @@ class HomeVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.barTintColor = #colorLiteral(red: 0.05490196078, green: 0.05490196078, blue: 0.05490196078, alpha: 1)
+        navigationItem.searchController = searchController
+        searchController.searchBar.delegate = self
+        searchController.searchBar.placeholder = "Search book"
         
         let selectedIndexpath = IndexPath(row: 0, section: 0)
         menuCllectionView.selectItem(at: selectedIndexpath, animated: false, scrollPosition: .centeredHorizontally)
+        
     }
-    
-    let menuTitle = ["Popular", "Top-rated", "Upcoming"]
-    
     
 }
 
@@ -56,6 +62,17 @@ extension HomeVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollec
         } else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ContainerCell", for: indexPath) as? ContainerCell else { return UICollectionViewCell() }
             cell.delegate = self
+//            cell.homeViewModel.getMoviesData(path: urls.popular)
+            switch indexPath.row {
+            case 0:
+                cell.homeViewModel.getMoviesData(path: urls.popular)
+            case 1:
+                cell.homeViewModel.getMoviesData(path: urls.toprated)
+            case 2:
+                cell.homeViewModel.getMoviesData(path: urls.upcoming)
+            default:
+                cell.homeViewModel.getMoviesData(path: urls.popular)
+            }
             return cell
         }
         
@@ -80,12 +97,20 @@ extension HomeVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollec
     
 }
 
+//MARK: - SearchController Delegate Methods
+extension HomeVC: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+    }
+    
+}
+
 //MARK: - Present DetailVC Delegate Method
-extension HomeVC: PresentDetailDelegate {
-    func presentDetailVC() {
-        let vc = DetailVC(nibName: "DetailVC", bundle: nil)
+extension HomeVC: ContainerCellDelegate {
+    func presentDetailVC(vc: UIViewController) {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    
 }
+

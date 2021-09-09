@@ -7,13 +7,13 @@
 
 import UIKit
 
-protocol PresentDetailDelegate {
-    func presentDetailVC()
-}
 
 class ContainerCell: UICollectionViewCell {
     
-    var delegate: PresentDetailDelegate?
+    var delegate: ContainerCellDelegate?
+    var homeViewModel = HomeViewModel()
+    let urls = URLs()
+    var data:[MovieModel] = []
 
     @IBOutlet weak var collectionView: UICollectionView! {
         didSet {
@@ -22,66 +22,29 @@ class ContainerCell: UICollectionViewCell {
             collectionView.register(UINib(nibName: "MovieCell", bundle: nil), forCellWithReuseIdentifier: "MovieCell")
         }
     }
-        
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        homeViewModel.delegate = self
+        
+        
+        
     }
     
-    let data:[MovieModel] = [
-        MovieModel(image: #imageLiteral(resourceName: "movie"),
-                   title: "",
-                   poster_path: "",
-                   overview: "",
-                   genre: [Genre(id: 1, name: "Drama")],
-                   budget: 0,
-                   language: "en",
-                   release_date: "",
-                   credits: Credits(cast: [Cast(gender: 1, id: 1, name: "",                     profile_path: "", cast_id: 1)],
-                                    crew: [Crew(gender: 1, id: 1, name: "", department: "", job: "")])),
-        MovieModel(image: #imageLiteral(resourceName: "movie-1"),
-                   title: "",
-                   poster_path: "",
-                   overview: "",
-                   genre: [Genre(id: 1, name: "Drama")],
-                   budget: 0,
-                   language: "en",
-                   release_date: "",
-                   credits: Credits(cast: [Cast(gender: 1, id: 1, name: "",                     profile_path: "", cast_id: 1)],
-                                    crew: [Crew(gender: 1, id: 1, name: "", department: "", job: "")])),
-        MovieModel(image: #imageLiteral(resourceName: "movie"),
-                   title: "",
-                   poster_path: "",
-                   overview: "",
-                   genre: [Genre(id: 1, name: "Drama")],
-                   budget: 0,
-                   language: "en",
-                   release_date: "",
-                   credits: Credits(cast: [Cast(gender: 1, id: 1, name: "",                     profile_path: "", cast_id: 1)],
-                                    crew: [Crew(gender: 1, id: 1, name: "", department: "", job: "")])),
-        MovieModel(image: #imageLiteral(resourceName: "movie-1"),
-                   title: "",
-                   poster_path: "",
-                   overview: "",
-                   genre: [Genre(id: 1, name: "Drama")],
-                   budget: 0,
-                   language: "en",
-                   release_date: "",
-                   credits: Credits(cast: [Cast(gender: 1, id: 1, name: "",                     profile_path: "", cast_id: 1)],
-                                    crew: [Crew(gender: 1, id: 1, name: "", department: "", job: "")]))
-    ]
+    
     
 }
 
 extension ContainerCell: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        data.count
+         return data.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as? MovieCell else { return UICollectionViewCell() }
         cell.configure(model: data[indexPath.row])
+
         return cell
     }
     
@@ -90,6 +53,16 @@ extension ContainerCell: UICollectionViewDelegate, UICollectionViewDataSource, U
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.presentDetailVC()
+        let vc = DetailVC(nibName: "DetailVC", bundle: nil)
+        vc.configure(model: data[indexPath.row])
+        delegate?.presentDetailVC(vc: vc)
     }
+}
+
+extension ContainerCell: HomeVMDelegate {
+    func getMovies(data: [MovieModel]) {
+        self.data = data
+        collectionView.reloadData()
+    }
+    
 }
